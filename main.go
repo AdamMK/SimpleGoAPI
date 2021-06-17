@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"github.com/gorilla/mux"
 )
 
 //defining struct
@@ -18,7 +19,7 @@ type Articles []Article
 
 func allArticles(w http.ResponseWriter, r *http.Request)  {
 	articles := Articles{
-		Article{Title: "First Articule Title", Desc: "This is description for first article", Content: "Hello World" },
+		Article{Title: "First Article Title", Desc: "This is description for first article", Content: "Hello World" },
 	}
 
 	fmt.Println("Endpoint Hit: All Articles Endpoint")
@@ -29,10 +30,20 @@ func homePage(w http.ResponseWriter, r *http.Request)  {
 	fmt.Fprint(w, "Homepage Endpoint")
 }
 
+func postArticles(w http.ResponseWriter, r *http.Request)  {
+	fmt.Fprintf(w, "POST endpoint worked")
+}
+
 func handleRequests()  {
-	http.HandleFunc("/", homePage)
-	http.HandleFunc("/articles", allArticles)
-	log.Fatal(http.ListenAndServe(":8081", nil))
+
+	myRouter := mux.NewRouter().StrictSlash(true)
+
+	myRouter.HandleFunc("/", homePage)
+	//can restrict endpoint to only be accessible with GET method
+	myRouter.HandleFunc("/articles", allArticles).Methods("GET")
+	//same enpoint as above but using different method
+	myRouter.HandleFunc("/articles", postArticles).Methods("POST")
+	log.Fatal(http.ListenAndServe(":8081", myRouter))
 	
 }
 
